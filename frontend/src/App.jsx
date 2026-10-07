@@ -40,6 +40,8 @@ const [forgotError, setForgotError] = useState("");
   const [salaries, setSalaries] = useState([]);
   const [deductions, setDeductions] = useState([]);
   const [payrolls, setPayrolls] = useState([]);
+  const [users, setUsers] = useState([]);
+ 
 
   const [editingEmployee, setEditingEmployee] = useState(null);
   const [editingSalary, setEditingSalary] = useState(null);
@@ -72,9 +74,77 @@ const [forgotError, setForgotError] = useState("");
     payPeriod: "September 2026"
   });
 
+  const fetchUsers = async () => {
+  try {
+    const response = await axios.get(
+      `${API_URL}/users`,
+      getAuthConfig()
+    );
+
+    console.log("Users response:", response.data);
+
+    const userList =
+      response.data?.data ||
+      response.data?.users ||
+      [];
+
+    setUsers(userList);
+
+  } catch (error) {
+    console.error(
+      "Users error:",
+      error.response?.data || error.message
+    );
+
+    setUsers([]);
+  }
+};
+
+
+const changeUserRole = async (userId, role) => {
+  const confirmed = window.confirm(
+    `Are you sure you want to make this user ${role}?`
+  );
+
+  if (!confirmed) return;
+
+  try {
+    await axios.put(
+      `${API_URL}/admin/users/${userId}/role`,
+      { role },
+      getAuthConfig()
+    );
+
+    await fetchUsers();
+
+    alert(`User is now ${role}`);
+
+  } catch (error) {
+    alert(
+      error.response?.data?.message ||
+      "Unable to update user role"
+    );
+  }
+};
+
   // Always get the latest token from localStorage.
   const getToken = () => localStorage.getItem("token");
 
+  const getCurrentUser = () => {
+    try {
+        return JSON.parse(
+            localStorage.getItem("user")
+        );
+    } catch {
+        return null;
+    }
+};
+
+const [currentUser, setCurrentUser] = useState(
+  getCurrentUser()
+);
+
+const isAdmin = currentUser?.role === "admin";
   const getAuthConfig = () => ({
     headers: {
       Authorization: `Bearer ${getToken()}`
@@ -89,44 +159,59 @@ const [forgotError, setForgotError] = useState("");
   // LOGIN
   // =========================
 
-  const login = async (e) => {
-    e.preventDefault();
+ const login = async (e) => {
+  e.preventDefault();
 
-    setLoginError("");
-    setLoading(true);
+  setLoginError("");
+  setLoading(true);
 
-    try {
-      const res = await axios.post(
-        `${API_URL}/auth/login`,
-        {
-          email,
-          password
-        },
-      );
-
-      const token = res.data?.token || res.data?.data?.token;
-
-
-      if (!token) {
-        throw new Error("Login succeeded but no token was returned");
+  try {
+    const res = await axios.post(
+      `${API_URL}/auth/login`,
+      {
+        email,
+        password
       }
+    );
 
-      localStorage.setItem("token", token);
+    const token =
+      res.data?.token ||
+      res.data?.data?.token;
 
-      setLoggedIn(true);
-      setActivePage("Dashboard");
-    } catch (error) {
-      console.error("Login error:", error);
-
-      setLoginError(
-        error.response?.data?.message ||
-        error.message ||
-        "Login failed"
-      );
-    } finally {
-      setLoading(false);
+    if (!token) {
+      throw new Error("Login succeeded but no token was returned");
     }
-  };
+
+    localStorage.setItem("token", token);
+
+    // Save the logged-in user
+    const loggedInUser =
+      res.data?.user ||
+      res.data?.data?.user;
+
+    if (loggedInUser) {
+      localStorage.setItem(
+        "user",
+        JSON.stringify(loggedInUser)
+      );
+      setCurrentUser(loggedInUser);
+    }
+
+    setLoggedIn(true);
+    setActivePage("Dashboard");
+
+  } catch (error) {
+    console.error("Login error:", error);
+
+    setLoginError(
+      error.response?.data?.message ||
+      error.message ||
+      "Login failed"
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   // =========================
   // LOGOUT
@@ -134,9 +219,12 @@ const [forgotError, setForgotError] = useState("");
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    setCurrentUser(null);
     setLoggedIn(false);
     setActivePage("Dashboard");
-  };
+};
 
      // =========================
   // REGISTER
@@ -669,19 +757,23 @@ const [forgotError, setForgotError] = useState("");
       alert("Payroll Error: " + message);
     }
   };
-
-  // =========================
+   
+    // =========================
   // LOAD DATA
   // =========================
 
   useEffect(() => {
-    if (loggedIn) {
-      fetchEmployees();
-      fetchSalaries();
-      fetchDeductions();
-      fetchPayrolls();
+  if (loggedIn) {
+    fetchEmployees();
+    fetchSalaries();
+    fetchDeductions();
+    fetchPayrolls();
+
+    if (isAdmin) {
+      fetchUsers();
     }
-  }, [loggedIn]);
+  }
+}, [loggedIn, isAdmin]);;
 
   // =========================
   // LOGIN SCREEN
@@ -1100,6 +1192,24 @@ const [forgotError, setForgotError] = useState("");
               <span>▤</span>
               Payroll
             </button>
+
+            {isAdmin && (
+           <button
+          type="button"
+           className={
+           activePage === "Users"
+           ? "nav-button active"
+           : "nav-button"
+          }
+            onClick={() => {
+          setActivePage("Users");
+          fetchUsers();
+           }}
+         >
+         <span>👤</span>
+         Users
+        </button>
+         )}
 
           </nav>
 
@@ -2186,7 +2296,140 @@ const [forgotError, setForgotError] = useState("");
 
             </>
           )}
+                   {/* USERS */}
 
+{activePage === "Users" && isAdmin && (
+  <>
+
+    <div className="page-header">
+
+      <div>
+        <h2>User Management</h2>
+
+        <p>
+          Manage application users and access roles.
+        </p>
+      </div>
+
+    </div>
+
+    <div className="table-card">
+
+      <div className="table-header">
+
+        <h3>
+          System Users
+        </h3>
+
+        <span>
+          {users.length} users
+        </span>
+
+      </div>
+
+      {users.length === 0 ? (
+        <p className="empty">
+          No users found.
+        </p>
+      ) : (
+        <div className="table-container">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+              {users.map((user) => (
+
+                <tr key={user._id}>
+
+                  <td>
+                    <strong>
+                      {user.name}
+                    </strong>
+                  </td>
+
+                  <td>
+                    {user.email}
+                  </td>
+
+                  <td>
+                    <span
+                      className={
+                        user.role === "admin"
+                          ? "role-badge admin"
+                          : "role-badge employee"
+                      }
+                    >
+                      {user.role}
+                    </span>
+                  </td>
+
+                  <td>
+
+                    {user._id === (currentUser?._id || currentUser?.id) ? (
+
+                      <span className="current-user">
+                        Current account
+                      </span>
+
+                    ) : user.role === "admin" ? (
+
+                      <button
+                        type="button"
+                        className="role-button employee-role"
+                        onClick={() =>
+                          changeUserRole(
+                            user._id,
+                            "employee"
+                          )
+                        }
+                      >
+                        Make Employee
+                      </button>
+
+                    ) : (
+
+                      <button
+                        type="button"
+                        className="role-button admin-role"
+                        onClick={() =>
+                          changeUserRole(
+                            user._id,
+                            "admin"
+                          )
+                        }
+                      >
+                        Make Admin
+                      </button>
+
+                    )}
+
+                  </td>
+
+                </tr>
+
+              ))}
+
+            </tbody>
+
+          </table>
+
+        </div>
+      )}
+
+    </div>
+
+  </>
+)}
         </main>
 
       </div>
