@@ -1,4 +1,5 @@
 <!doctype html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -7,7 +8,102 @@
     <title>Simple Payroll App</title>
   </head>
   <body>
+    
+     <h1>
+        Simple Payroll App 
+    </h1>  
+         Staff confidentiality is well preserved.
+     <hr>
+    
+    <form id="form" action="Access.html" method="post">
+       <fieldset>
+        <legend>Access Data</legend>
+        <label for="name">Name*:</label>
+        <input 
+               type="text"
+               id="name" 
+               name="name" 
+              placeholder="Full Name"
+               required>
+            <br><br>
+
+        <label for="email">Email*:</label>
+        <input
+               type="email" 
+               id="email"
+               name="email"            
+               placeholder="Example@SPA.com"     
+               required>
+             <br><br>
+ 
+
+    <label for="password">Password*:</label>
+        <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              required minlength="14">
+             <br><br>
+
+           <p>
+                  Are you an?          
+           </p>
+           
+            <label>
+              <input   
+                    type="radio"
+                    name="role"
+                    value="Admin">
+                    Admin
+            </label>
+           
+            <label>
+              <input            
+                type="radio"
+                name="role"
+                value="HR">
+                   HR
+            </label>
+           
+            <label>
+              <input 
+                    type="radio"
+                    name="role"
+                    value="Employee">
+                    Employee
+            </label>
+         
+         <label>
+              <input 
+                    type="radio"
+                    name="role"
+                    value="Payroll Officer">
+                    Payroll Officer
+            </label>
+<br>
+         <input type="submit" value="Submit">
+         
+      </fieldset>
+     </form>
+        
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+   
+    <footer> 
+      <br>
+       <hr>
+   
+           <p>
+                ©2026 Group 62&nbsp;&nbsp; 
+                    &nbsp;&nbsp;
+                 All rights reserved
+            </p>
+
+                Privacy & Policy
+                  &nbsp;&nbsp;&nbsp;
+                    Terms & Conditions
+
+     </footer>
+    <script type="module" src="/src/main.jsx">
+    </script>
   </body>
 </html>
