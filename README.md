@@ -166,7 +166,7 @@ MongoDB stores:
 
 ## 🌐 Deployment
 
-The application is deployed using Render.
+The application is successfully deployed using Render.
 
 The frontend communicates with the deployed backend API, while the backend connects to MongoDB.
 
@@ -174,7 +174,7 @@ Environment variables such as database credentials and JWT secrets are configure
 
 ## 👨‍💻 Author
 
-Developed as part of the TS Academy Simple Payroll App assignment.
+Developed as part of the TS Academy Simple Payroll App Capstone-Project.
 
 ## 📄 License
 
