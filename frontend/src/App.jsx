@@ -168,56 +168,63 @@ const isAdmin = currentUser?.role === "admin";
   // LOGIN
   // =========================
 
- const login = async (e) => {
-  e.preventDefault();
 
-  setLoginError("");
-  setLoading(true);
+  const login = async (e) => {
+    e.preventDefault();
 
-  try {
-    const res = await axios.post(
-      `${API_URL}/auth/login`,
-      {
-        email,
-        password
-      }
-    );
-    console.log("LOGIN RESPONSE:", res.data);
+    setLoginError("");
+    setLoading(true);
 
-   const responseData = res.data?.data || res.data;
-
-const token = responseData?.token;
-    if (!token) {
-      throw new Error("Login succeeded but no token was returned");
-    }
-
-    localStorage.setItem("token", token);
-
-    // Save the logged-in user
-   const loggedInUser = responseData?.user;
-    if (loggedInUser) {
-      localStorage.setItem(
-        "user",
-        JSON.stringify(loggedInUser)
+    try {
+      const response = await axios.post(
+        `${API_URL}/auth/login`,
+        {
+          email: email.trim(),
+          password
+        }
       );
-      setCurrentUser(loggedInUser);
+
+      // Your backend returns data.token and data.user.
+      const responseData = response.data?.data;
+      const token = responseData?.token;
+      const loggedInUser = responseData?.user;
+
+      if (!token) {
+        console.error("Login response:", response.data);
+        throw new Error(
+          "The server response did not contain a login token."
+        );
+      }
+
+      // Save the token and user before opening the dashboard.
+      localStorage.setItem("token", token);
+
+      if (loggedInUser) {
+        localStorage.setItem(
+          "user",
+          JSON.stringify(loggedInUser)
+        );
+      }
+
+      setLoggedIn(true);
+      setActivePage("Dashboard");
+      setPassword("");
+
+    } catch (error) {
+      console.error(
+        "Login error:",
+        error.response?.data || error.message
+      );
+
+      setLoginError(
+        error.response?.data?.message ||
+        error.message ||
+        "Login failed. Please try again."
+      );
+    } finally {
+      setLoading(false);
     }
-
-    setLoggedIn(true);
-    setActivePage("Dashboard");
-
-  } catch (error) {
-    console.error("Login error:", error);
-
-    setLoginError(
-      error.response?.data?.message ||
-      error.message ||
-      "Login failed"
-    );
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   // =========================
   // LOGOUT
