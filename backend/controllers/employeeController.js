@@ -1,6 +1,7 @@
 const Employee = require("../models/Employee");
+const User = require("../models/User");
 
-// Create employee
+// Create employee - ADMIN ONLY
 const createEmployee = async (req, res) => {
     try {
         const { name, email, department, position, salary } = req.body;
@@ -30,10 +31,22 @@ const createEmployee = async (req, res) => {
                 data: null
             });
         }
+const linkedUser = await User.findOne({
+    email: email.trim().toLowerCase()
+});
+
+if (!linkedUser) {
+    return res.status(404).json({
+        success: false,
+        message: "Create a user account with this email first.",
+        data: null
+    });
+}
 
         const employee = await Employee.create({
+            user: linkedUser._id,
             name,
-            email,
+            email: email.trim().toLowerCase(),
             department,
             position,
             salary
@@ -46,6 +59,8 @@ const createEmployee = async (req, res) => {
         });
 
     } catch (error) {
+        console.error("Create employee error:", error);
+
         res.status(500).json({
             success: false,
             message: "Unable to create employee",
@@ -54,7 +69,8 @@ const createEmployee = async (req, res) => {
     }
 };
 
-// Get all employees
+
+// Get all employees - ADMIN ONLY
 const getEmployees = async (req, res) => {
     try {
         const employees = await Employee.find();
@@ -66,6 +82,8 @@ const getEmployees = async (req, res) => {
         });
 
     } catch (error) {
+        console.error("Get employees error:", error);
+
         res.status(500).json({
             success: false,
             message: "Unable to retrieve employees",
@@ -74,7 +92,51 @@ const getEmployees = async (req, res) => {
     }
 };
 
-// Update employee
+
+// Get logged-in employee's own details
+const getMyEmployee = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+                data: null
+            });
+        }
+
+        const employee = await Employee.findOne({
+            email: user.email
+        });
+
+        if (!employee) {
+            return res.status(404).json({
+                success: false,
+                message: "Employee record not found",
+                data: null
+            });
+        }
+
+        res.json({
+            success: true,
+            message: "Employee details retrieved successfully",
+            data: employee
+        });
+
+    } catch (error) {
+        console.error("Get my employee error:", error);
+
+        res.status(500).json({
+            success: false,
+            message: "Unable to retrieve employee details",
+            data: null
+        });
+    }
+};
+
+
+// Update employee - ADMIN ONLY
 const updateEmployee = async (req, res) => {
     try {
         const { name, email, department, position, salary } = req.body;
@@ -120,6 +182,8 @@ const updateEmployee = async (req, res) => {
         });
 
     } catch (error) {
+        console.error("Update employee error:", error);
+
         res.status(500).json({
             success: false,
             message: "Unable to update employee",
@@ -128,7 +192,8 @@ const updateEmployee = async (req, res) => {
     }
 };
 
-// Delete employee
+
+// Delete employee - ADMIN ONLY
 const deleteEmployee = async (req, res) => {
     try {
         const employee = await Employee.findById(req.params.id);
@@ -150,6 +215,8 @@ const deleteEmployee = async (req, res) => {
         });
 
     } catch (error) {
+        console.error("Delete employee error:", error);
+
         res.status(500).json({
             success: false,
             message: "Unable to delete employee",
@@ -158,9 +225,11 @@ const deleteEmployee = async (req, res) => {
     }
 };
 
+
 module.exports = {
     createEmployee,
     getEmployees,
+    getMyEmployee,
     updateEmployee,
     deleteEmployee
 };

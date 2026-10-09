@@ -1,8 +1,12 @@
+
 const express = require("express");
 
 const {
     runPayroll,
-    getPayrolls
+    getPayrolls,
+    getMyPayrolls,
+    updatePayroll,
+    deletePayroll
 } = require("../controllers/payrollController");
 
 const {
@@ -12,7 +16,33 @@ const {
 
 const router = express.Router();
 
-router.post("/run", protect, authorize("admin"), runPayroll);
-router.get("/", protect, getPayrolls);
+// Admin processes payroll
+router.post(
+    "/run",
+    protect,
+    authorize("admin"),
+    runPayroll
+);
+
+// Admin sees ALL payroll records
+router.get(
+    "/",
+    protect,
+    authorize("admin"),
+    getPayrolls
+);
+
+// Employee sees ONLY their own payroll
+router.get(
+    "/me",
+    protect,
+    authorize("employee"),
+    getMyPayrolls
+);
+
+router.put("/:id", protect, authorize("admin"), updatePayroll);
+router.delete("/:id", protect, authorize("admin"), deletePayroll);
+
 
 module.exports = router;
+

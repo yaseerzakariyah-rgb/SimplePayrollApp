@@ -1,5 +1,51 @@
 const Deduction = require("../models/Deduction");
 const Employee = require("../models/Employee");
+const User = require("../models/User");
+// Get logged-in employee's deductions
+const getMyDeductions = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+                data: null
+            });
+        }
+
+        const employee = await Employee.findOne({
+            email: user.email
+        });
+
+        if (!employee) {
+            return res.status(404).json({
+                success: false,
+                message: "Employee record not found",
+                data: null
+            });
+        }
+
+        const deductions = await Deduction.find({
+            employee: employee._id
+        }).sort({ createdAt: -1 });
+
+        res.json({
+            success: true,
+            message: "Your deductions retrieved successfully",
+            data: deductions
+        });
+
+    } catch (error) {
+        console.error("Get my deductions error:", error);
+
+        res.status(500).json({
+            success: false,
+            message: "Unable to retrieve your deductions",
+            data: null
+        });
+    }
+};
 
 // Create deduction
 const createDeduction = async (req, res) => {
@@ -181,6 +227,7 @@ const deleteDeduction = async (req, res) => {
 module.exports = {
     createDeduction,
     getDeductions,
+    getMyDeductions,
     updateDeduction,
     deleteDeduction
 };

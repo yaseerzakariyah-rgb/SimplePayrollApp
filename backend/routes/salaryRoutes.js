@@ -1,8 +1,10 @@
+
 const express = require("express");
 
 const {
     createSalary,
     getSalaries,
+    getMySalaries,
     updateSalary,
     deleteSalary
 } = require("../controllers/salaryController");
@@ -14,12 +16,42 @@ const {
 
 const router = express.Router();
 
-router.post("/", protect, authorize("admin"), createSalary);
+// Admin manages all salaries
+router.post(
+    "/",
+    protect,
+    authorize("admin"),
+    createSalary
+);
 
-router.get("/", protect, getSalaries);
+router.get(
+    "/",
+    protect,
+    authorize("admin"),
+    getSalaries
+);
 
-router.put("/:id", protect, authorize("admin"), updateSalary);
+router.put(
+    "/:id",
+    protect,
+    authorize("admin"),
+    updateSalary
+);
 
-router.delete("/:id", protect, authorize("admin"), deleteSalary);
+router.delete(
+    "/:id",
+    protect,
+    authorize("admin"),
+    deleteSalary
+);
+
+// Employee sees ONLY their own salary
+router.get(
+    "/me",
+    protect,
+    authorize("employee"),
+    getMySalaries
+);
 
 module.exports = router;
+

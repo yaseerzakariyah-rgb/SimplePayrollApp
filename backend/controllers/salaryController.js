@@ -1,5 +1,52 @@
 const Salary = require("../models/Salary");
 const Employee = require("../models/Employee");
+const User = require("../models/User");
+
+// Get logged-in employee's salary records
+const getMySalaries = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+                data: null
+            });
+        }
+
+        const employee = await Employee.findOne({
+            email: user.email
+        });
+
+        if (!employee) {
+            return res.status(404).json({
+                success: false,
+                message: "Employee record not found",
+                data: null
+            });
+        }
+
+        const salaries = await Salary.find({
+            employee: employee._id
+        }).sort({ effectiveDate: -1 });
+
+        res.json({
+            success: true,
+            message: "Your salary records retrieved successfully",
+            data: salaries
+        });
+
+    } catch (error) {
+        console.error("Get my salaries error:", error);
+
+        res.status(500).json({
+            success: false,
+            message: "Unable to retrieve your salary records",
+            data: null
+        });
+    }
+};
 
 const createSalary = async (req, res) => {
     try {
@@ -179,6 +226,7 @@ const deleteSalary = async (req, res) => {
 module.exports = {
     createSalary,
     getSalaries,
+    getMySalaries,
     updateSalary,
     deleteSalary
 };

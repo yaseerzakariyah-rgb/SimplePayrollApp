@@ -1068,3 +1068,28 @@ tbody tr:hover {
   }
 
 }
+
+/* Employee profile visual refresh */
+.employee-profile-card { border-top: 4px solid #2563eb; box-shadow: 0 8px 24px rgba(31, 41, 55, 0.06); }
+.employee-profile-card h3 { color: #173b66; font-size: 20px; }
+.employee-profile-grid { gap: 16px; }
+.profile-detail { padding: 16px; background: #eff6ff; border: 1px solid #dbeafe; border-left: 4px solid #3b82f6; border-radius: 10px; min-width: 0; }
+.profile-detail label { color: #64748b; text-transform: uppercase; letter-spacing: .04em; font-size: 11px; }
+.profile-detail p { margin: 8px 0 0; color: #173b66; font-size: 15px; font-weight: 700; overflow-wrap: anywhere; }
+.field-help { display: block; margin-top: 7px; color: #64748b; font-size: 12px; }
+.form-grid input:disabled, .form-grid select:disabled { background: #f3f4f6; color: #6b7280; cursor: not-allowed; }
+@media (max-width: 650px) { .employee-profile-grid { grid-template-columns: 1fr; } }
+
+.delete-button {
+    background: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.delete-button:hover {
+    background: #b91c1c;
+}

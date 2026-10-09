@@ -1,8 +1,10 @@
+
 const express = require("express");
 
 const {
     createDeduction,
     getDeductions,
+    getMyDeductions,
     updateDeduction,
     deleteDeduction
 } = require("../controllers/deductionController");
@@ -14,6 +16,7 @@ const {
 
 const router = express.Router();
 
+// Admin creates deduction
 router.post(
     "/",
     protect,
@@ -21,12 +24,22 @@ router.post(
     createDeduction
 );
 
+// Admin sees all deductions
 router.get(
     "/",
     protect,
+    authorize("admin"),
     getDeductions
 );
+// Employee sees ONLY their own deductions
+router.get(
+    "/me",
+    protect,
+    authorize("employee"),
+    getMyDeductions
+);
 
+// Admin updates deduction
 router.put(
     "/:id",
     protect,
@@ -34,6 +47,7 @@ router.put(
     updateDeduction
 );
 
+// Admin deletes deduction
 router.delete(
     "/:id",
     protect,
@@ -42,3 +56,4 @@ router.delete(
 );
 
 module.exports = router;
+

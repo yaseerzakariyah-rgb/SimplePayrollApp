@@ -1,8 +1,10 @@
+
 const express = require("express");
 
 const {
     createEmployee,
     getEmployees,
+    getMyEmployee,
     updateEmployee,
     deleteEmployee
 } = require("../controllers/employeeController");
@@ -14,6 +16,23 @@ const {
 
 const router = express.Router();
 
+// Employee sees ONLY their own employee details
+router.get(
+    "/me",
+    protect,
+    authorize("employee"),
+    getMyEmployee
+);
+
+// Admin sees ALL employees
+router.get(
+    "/",
+    protect,
+    authorize("admin"),
+    getEmployees
+);
+
+// Admin creates employee
 router.post(
     "/",
     protect,
@@ -21,12 +40,7 @@ router.post(
     createEmployee
 );
 
-router.get(
-    "/",
-    protect,
-    getEmployees
-);
-
+// Admin updates employee
 router.put(
     "/:id",
     protect,
@@ -34,6 +48,7 @@ router.put(
     updateEmployee
 );
 
+// Admin deletes employee
 router.delete(
     "/:id",
     protect,
@@ -42,3 +57,4 @@ router.delete(
 );
 
 module.exports = router;
+
