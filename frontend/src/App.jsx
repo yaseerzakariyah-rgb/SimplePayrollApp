@@ -182,6 +182,7 @@ const isAdmin = currentUser?.role === "admin";
         password
       }
     );
+    console.log("LOGIN RESPONSE:", res.data);
 
    const responseData = res.data?.data || res.data;
 
