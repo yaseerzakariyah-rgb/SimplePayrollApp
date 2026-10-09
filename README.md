@@ -1,7 +1,7 @@
 # Simple Payroll App
 
 A simple web-based payroll management system for managing employees, salaries, deductions, and payroll processing.
-Modern payroll systems commonly connect employee records, attendance/leave, salary components, deductions, payroll runs, payslips and reporting into one workflow.
+Modern payroll systems commonly connect employee records, attendance/leave, salary components, payslips and reporting into one workflow.
 
 ## 🚀 Live Application
 
