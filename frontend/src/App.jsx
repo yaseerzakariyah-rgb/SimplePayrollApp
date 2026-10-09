@@ -183,10 +183,9 @@ const isAdmin = currentUser?.role === "admin";
       }
     );
 
-    const token =
-      res.data?.token ||
-      res.data?.data?.token;
+   const responseData = res.data?.data || res.data;
 
+const token = responseData?.token;
     if (!token) {
       throw new Error("Login succeeded but no token was returned");
     }
@@ -194,10 +193,7 @@ const isAdmin = currentUser?.role === "admin";
     localStorage.setItem("token", token);
 
     // Save the logged-in user
-    const loggedInUser =
-      res.data?.user ||
-      res.data?.data?.user;
-
+   const loggedInUser = responseData?.user;
     if (loggedInUser) {
       localStorage.setItem(
         "user",
